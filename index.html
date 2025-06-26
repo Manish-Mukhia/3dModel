@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>3D GLB Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D Model Viewer</title>
   <style>
     body { margin: 0; overflow: hidden; }
     canvas { display: block; }
@@ -10,32 +11,56 @@
 </head>
 <body>
   <script type="module">
-    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js';
-    import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/loaders/GLTFLoader.js';
+    import * as THREE from './three.module.js';
+    import { GLTFLoader } from './GLTFLoader.js';
 
+    // Scene setup
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer();
+    const camera = new THREE.PerspectiveCamera(
+      75, window.innerWidth / window.innerHeight, 0.1, 1000
+    );
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
+    // Lighting
     const light = new THREE.HemisphereLight(0xffffff, 0x444444);
     light.position.set(0, 20, 0);
     scene.add(light);
 
+    const directionalLight = new THREE.DirectionalLight(0xffffff);
+    directionalLight.position.set(0, 20, 10);
+    scene.add(directionalLight);
+
+    // Load GLB model
     const loader = new GLTFLoader();
-    loader.load('/exterior.glb', gltf => {
-      scene.add(gltf.scene);
-      camera.position.z = 5;
-      animate();
-    }, undefined, error => {
-      console.error('Error loading GLB:', error);
+    loader.load(
+      './public/exterior.glb',
+      (gltf) => {
+        scene.add(gltf.scene);
+        gltf.scene.position.set(0, 0, 0);
+      },
+      undefined,
+      (error) => {
+        console.error('An error happened loading the model:', error);
+      }
+    );
+
+    camera.position.z = 5;
+
+    // Handle resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    function animate() {
+    // Animation loop
+    const animate = () => {
       requestAnimationFrame(animate);
       renderer.render(scene, camera);
-    }
+    };
+    animate();
   </script>
 </body>
 </html>
