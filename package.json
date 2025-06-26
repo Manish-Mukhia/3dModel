@@ -1,0 +1,7 @@
+{
+  "name": "glb-viewer",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "echo 'No build needed'"
+  }
+}
